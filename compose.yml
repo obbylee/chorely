@@ -1,0 +1,6 @@
+services:
+  database:
+    container_name: chorely-mongodb
+    image: mongo
+    ports:
+      - '27017:27017'
