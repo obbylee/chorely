@@ -150,7 +150,7 @@ export async function deleteTask(req: Request, res: Response) {
         .json({ message: "Task not found or not authorized." });
     }
 
-    res.status(200).json({ data: task });
+    res.status(200).json({ message: "Task deleted successfully", data: task });
   } catch (error: any) {
     console.error("Delete task error:", error);
 
