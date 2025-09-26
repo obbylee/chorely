@@ -1,16 +1,11 @@
-import jwt, { JwtPayload } from "jsonwebtoken";
 import crypto from "crypto";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+
+import { type TokenPayload } from "../types";
 
 const JWT_SECRET = process.env.JWT_SECRET || "jwt_secret_key";
 
 export const JWT_EXPIRATION = "1h";
-export interface TokenPayload {
-  userId: string;
-  username: string;
-  email: string;
-  iat?: number; // issued at
-  exp?: number; // expiration
-}
 
 export function createToken({
   userId,

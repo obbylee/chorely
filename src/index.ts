@@ -1,8 +1,8 @@
 import * as dotenv from "dotenv";
 import express from "express";
 
-import authRoutes from "./routes/authRoutes";
-import tasksRoutes from "./routes/tasksRoutes";
+import authRoutes from "./routes/auth.routes";
+import tasksRoutes from "./routes/task.routes";
 
 import mongoose from "mongoose";
 

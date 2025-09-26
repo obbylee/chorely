@@ -1,6 +1,10 @@
 import { type Request, type Response, type NextFunction } from "express";
-import { type TokenPayload, verifyToken } from "../utils/token";
+
+import { verifyToken } from "../utils/token";
+
 import User from "../models/user.model";
+
+import { type TokenPayload } from "../types";
 
 declare global {
   namespace Express {

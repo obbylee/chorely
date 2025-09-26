@@ -1,20 +1,18 @@
 import mongoose from "mongoose";
-import { Router } from "express";
+import { type Request, type Response } from "express";
 
 import Task from "../models/task.model";
 
-import { authMiddleware } from "../middlewares/authMiddleware";
-import { TokenPayload } from "../utils/token";
+import {
+  createTaskService,
+  getTaskByIdService,
+  getUserTaskService,
+  updateTaskService,
+} from "../services/task.service";
 
-interface CreateTaskInput {
-  title: string;
-  description: string;
-  completed?: boolean;
-}
+import { type TokenPayload, type CreateTaskInput } from "../types";
 
-const tasksRoutes = Router();
-
-tasksRoutes.get("/", authMiddleware, async (req, res) => {
+export async function getCurrentUserTasks(req: Request, res: Response) {
   try {
     const user = req.user;
 
@@ -22,15 +20,15 @@ tasksRoutes.get("/", authMiddleware, async (req, res) => {
       return res.status(401).json({ message: "Invalid token payload" });
     }
 
-    const tasks = await Task.find({ owner: user.userId });
+    const tasks = await getUserTaskService(user.userId);
     res.status(200).json({ data: tasks });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
-});
+}
 
-tasksRoutes.get("/:id", async (req, res) => {
+export async function getTaskById(req: Request, res: Response) {
   try {
     const { id } = req.params;
 
@@ -40,7 +38,7 @@ tasksRoutes.get("/:id", async (req, res) => {
       return res.status(400).json({ message: "Invalid task ID" });
     }
 
-    const task = await Task.findById(id);
+    const task = await getTaskByIdService(id);
 
     if (!task) {
       return res.json({ message: "Task not found." });
@@ -52,9 +50,9 @@ tasksRoutes.get("/:id", async (req, res) => {
 
     res.status(500).json({ message: "Internal server error" });
   }
-});
+}
 
-tasksRoutes.post("/", authMiddleware, async (req, res) => {
+export async function createTask(req: Request, res: Response) {
   try {
     const reqBody = req.body as CreateTaskInput;
     const user = req.user as TokenPayload;
@@ -63,7 +61,7 @@ tasksRoutes.post("/", authMiddleware, async (req, res) => {
       return res.status(401).json({ message: "Invalid token payload" });
     }
 
-    const task = await Task.create({ ...reqBody, owner: user.userId });
+    const task = await createTaskService(reqBody, user.userId);
 
     res.status(201).json({ data: task });
   } catch (error: any) {
@@ -78,9 +76,9 @@ tasksRoutes.post("/", authMiddleware, async (req, res) => {
 
     res.status(500).json({ message: "Internal server error" });
   }
-});
+}
 
-tasksRoutes.patch("/:id", authMiddleware, async (req, res) => {
+export async function patchTask(req: Request, res: Response) {
   try {
     const { id } = req.params;
     const user = req.user as TokenPayload;
@@ -94,14 +92,21 @@ tasksRoutes.patch("/:id", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Invalid task ID" });
     }
 
-    const task = await Task.findOneAndUpdate(
-      { _id: id, owner: user.userId },
-      reqBody,
-      {
-        new: true,
-        runValidators: true,
-      },
+    if (!reqBody || Object.keys(reqBody).length === 0) {
+      return res.status(400).json({ message: "Request body cannot be empty." });
+    }
+
+    const allowedUpdates = ["title", "description", "status"];
+    const updates = Object.keys(reqBody);
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update),
     );
+
+    if (!isValidOperation) {
+      return res.status(400).json({ message: "Invalid updates!" });
+    }
+
+    const task = await updateTaskService(id, user.userId, reqBody);
 
     if (!task) {
       return res
@@ -122,9 +127,9 @@ tasksRoutes.patch("/:id", authMiddleware, async (req, res) => {
 
     res.status(500).json({ message: "Internal server error" });
   }
-});
+}
 
-tasksRoutes.delete("/:id", authMiddleware, async (req, res) => {
+export async function deleteTask(req: Request, res: Response) {
   try {
     const { id } = req.params;
     const user = req.user as TokenPayload;
@@ -151,6 +156,4 @@ tasksRoutes.delete("/:id", authMiddleware, async (req, res) => {
 
     res.status(500).json({ message: "Internal server error" });
   }
-});
-
-export default tasksRoutes;
+}
