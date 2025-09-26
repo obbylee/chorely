@@ -23,6 +23,11 @@ A simple RESTful Task Management API built with **Node.js**, **Express**, **Type
   - JWT + Argon2 for auth
   - RESTful API design
 
+- 🧪 **Testing**
+  - Jest & Supertest for API testing
+  - In-memory MongoDB for isolated test environment
+  - Tests cover auth and task routes (CRUD operations)
+
 ---
 
 ## 🚀 Getting Started
@@ -90,3 +95,31 @@ src/
 ├── types/             # Custom TypeScript types/interfaces
 └── index.ts             # Main app entry
 ```
+
+### 🧪 Testing
+
+This project uses Jest and Supertest for automated testing of API endpoints, including authentication and task operations.
+
+Run the full test suite with:
+
+```bash
+npm test
+#or
+npx jest
+```
+
+### Test Environment
+
+- Tests run using an in-memory MongoDB server (mongodb-memory-server) for fast, isolated database testing.
+
+- Authentication tests include JWT token creation.
+
+- Task tests cover all CRUD operations.
+
+### Adding Tests
+
+- Tests are placed in the `/src/__tests__/` folder.
+
+- Use Supertest to simulate HTTP requests.
+
+- Use Jest's `describe` and `it` blocks for organizing tests and `expect` for assertions.
